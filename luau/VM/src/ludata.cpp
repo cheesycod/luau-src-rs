@@ -4,14 +4,15 @@
 
 #include "lgc.h"
 #include "lmem.h"
+#include "stdio.h"
 
 #include <string.h>
 
-Udata* luaU_newudata(lua_State* L, size_t s, int tag)
+Udata *luaU_newudata(lua_State *L, size_t s, int tag)
 {
     if (s > INT_MAX - sizeof(Udata))
         luaM_toobig(L);
-    Udata* u = luaM_newgco(L, Udata, sizeudata(s), L->activememcat);
+    Udata *u = luaM_newgco(L, Udata, sizeudata(s), L->activememcat);
     luaC_init(L, u, LUA_TUSERDATA);
     u->len = int(s);
     u->metatable = NULL;
@@ -20,13 +21,15 @@ Udata* luaU_newudata(lua_State* L, size_t s, int tag)
     return u;
 }
 
-void luaU_freeudata(lua_State* L, Udata* u, lua_Page* page)
+void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
 {
     // Before destroying the userdata, print __type if we can
-    if(u != NULL && u->metatable != NULL) {
+    if (u != NULL && u->metatable != NULL)
+    {
         lua_getfield(L, -1, "__type");
-        if(lua_isstring(L, -1)) {
-            const char* type = lua_tostring(L, -1);
+        if (lua_isstring(L, -1))
+        {
+            const char *type = lua_tostring(L, -1);
             printf("Destroying userdata of type: %s\n", type);
         }
         lua_pop(L, 1);
@@ -42,12 +45,11 @@ void luaU_freeudata(lua_State* L, Udata* u, lua_Page* page)
     }
     else if (u->tag == UTAG_IDTOR)
     {
-        void (*dtor)(void*) = nullptr;
+        void (*dtor)(void *) = nullptr;
         memcpy(&dtor, &u->data + u->len - sizeof(dtor), sizeof(dtor));
         if (dtor)
             dtor(u->data);
     }
-
 
     luaM_freegco(L, u, sizeudata(u->len), u->memcat, page);
 }
