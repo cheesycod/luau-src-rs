@@ -29,15 +29,15 @@ void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
     {
         // Push metatable to stack
         // Convert TString to TValue
-        TString *typeStr = luaS_new(L, "type");
+        TString *typeStr = luaS_new(L, "__type");
 
-        luaH_getstr(u->metatable, typeStr);
-        if (lua_isstring(L, -1))
+        const TValue *result = luaH_getstr(u->metatable, typeStr);
+
+        if (ttisstring(result))
         {
-            const char *type = lua_tostring(L, -1);
-            printf("Destroying userdata of type: %s\n", type);
+            TString *ts = tsvalue(result);
+            printf("Destroying userdata of type: %s\n", getstr(ts));
         }
-        lua_pop(L, 1);
 
         luaS_free(L, typeStr, page);
     }
