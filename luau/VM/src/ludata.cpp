@@ -3,9 +3,10 @@
 #include "ludata.h"
 
 #include "lgc.h"
+#include "ltable.h"
 #include "lmem.h"
+#include "lstring.h"
 #include "stdio.h"
-
 #include <string.h>
 
 Udata *luaU_newudata(lua_State *L, size_t s, int tag)
@@ -23,18 +24,22 @@ Udata *luaU_newudata(lua_State *L, size_t s, int tag)
 
 void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
 {
-    // Before destroying the userdata, print __type if we can
+    // Before destroying the userdata, print current chunk if we can
     if (u != NULL && u->metatable != NULL)
     {
         // Push metatable to stack
-        lua_pushvalue(L, -1);
-        lua_getfield(L, -1, "__type");
+        // Convert TString to TValue
+        TString *typeStr = luaS_new(L, "type");
+
+        luaH_getstr(u->metatable, typeStr);
         if (lua_isstring(L, -1))
         {
             const char *type = lua_tostring(L, -1);
             printf("Destroying userdata of type: %s\n", type);
         }
         lua_pop(L, 1);
+
+        luaS_free(L, typeStr, page);
     }
 
     if (u->tag < LUA_UTAG_LIMIT)
