@@ -26,6 +26,8 @@ void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
     // Before destroying the userdata, print __type if we can
     if (u != NULL && u->metatable != NULL)
     {
+        // Push metatable to stack
+        lua_pushvalue(L, -1);
         lua_getfield(L, -1, "__type");
         if (lua_isstring(L, -1))
         {
