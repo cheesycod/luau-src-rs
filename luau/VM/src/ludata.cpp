@@ -22,6 +22,16 @@ Udata* luaU_newudata(lua_State* L, size_t s, int tag)
 
 void luaU_freeudata(lua_State* L, Udata* u, lua_Page* page)
 {
+    // Before destroying the userdata, print __type if we can
+    if(u != NULL && u->metatable != NULL) {
+        lua_getfield(L, -1, "__type");
+        if(lua_isstring(L, -1)) {
+            const char* type = lua_tostring(L, -1);
+            printf("Destroying userdata of type: %s\n", type);
+        }
+        lua_pop(L, 1);
+    }
+
     if (u->tag < LUA_UTAG_LIMIT)
     {
         lua_Destructor dtor = L->global->udatagc[u->tag];
