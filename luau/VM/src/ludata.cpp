@@ -24,7 +24,7 @@ Udata *luaU_newudata(lua_State *L, size_t s, int tag)
 
 void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
 {
-    // Before destroying the userdata, print current chunk if we can
+    // Before destroying the userdata, print __type if possible
     if (u != NULL && u->metatable != NULL)
     {
         // Push metatable to stack
@@ -39,7 +39,7 @@ void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
             printf("Destroying userdata of type: %s\n", getstr(ts));
         }
 
-        luaS_free(L, typeStr, page);
+        // luaS_free(L, typeStr, page);
     }
 
     if (u->tag < LUA_UTAG_LIMIT)
