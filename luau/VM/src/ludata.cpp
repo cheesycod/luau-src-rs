@@ -41,6 +41,10 @@ void luaU_freeudata(lua_State *L, Udata *u, lua_Page *page)
 
         // luaS_free(L, typeStr, page);
     }
+    else if (u == NULL)
+    {
+        printf("WARNING: Attempting to free NULL userdata\n");
+    }
 
     if (u->tag < LUA_UTAG_LIMIT)
     {
